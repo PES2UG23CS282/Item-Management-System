@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD App - Item Manager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="loginPage" class="page active">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h1>🔐 Login</h1>
+        <form id="loginForm">
+          <input 
+            type="email" 
+            id="loginEmail" 
+            placeholder="Email" 
+            required
+          >
+          <input 
+            type="password" 
+            id="loginPassword" 
+            placeholder="Password" 
+            required
+          >
+          <button type="submit">Login</button>
+          <p>Don't have an account? <a href="#" onclick="switchPage('registerPage')">Register here</a></p>
+        </form>
+        <div id="loginError" class="error-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Page -->
+  <div id="registerPage" class="page">
+    <div class="auth-container">
+      <div class="auth-card">
+        <h1>📝 Register</h1>
+        <form id="registerForm">
+          <input 
+            type="text" 
+            id="registerUsername" 
+            placeholder="Username" 
+            required
+          >
+          <input 
+            type="email" 
+            id="registerEmail" 
+            placeholder="Email" 
+            required
+          >
+          <input 
+            type="password" 
+            id="registerPassword" 
+            placeholder="Password (min 6 characters)" 
+            required
+          >
+          <input 
+            type="password" 
+            id="registerConfirmPassword" 
+            placeholder="Confirm Password" 
+            required
+          >
+          <button type="submit">Register</button>
+          <p>Already have an account? <a href="#" onclick="switchPage('loginPage')">Login here</a></p>
+        </form>
+        <div id="registerError" class="error-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Page -->
+  <div id="appPage" class="page">
+    <div class="container">
+      <div class="header">
+        <h1>📋 Item Manager</h1>
+        <div class="user-info">
+          <span id="userDisplay">Welcome!</span>
+          <button id="logoutBtn" class="btn-logout">Logout</button>
+        </div>
+      </div>
+      
+      <!-- Add Item Form -->
+      <div class="form-container">
+        <h2>Add New Item</h2>
+        <form id="addItemForm">
+          <input 
+            type="text" 
+            id="title" 
+            placeholder="Enter item title" 
+            required
+          >
+          <textarea 
+            id="description" 
+            placeholder="Enter item description (optional)"
+            rows="3"
+          ></textarea>
+          <button type="submit">Add Item</button>
+        </form>
+      </div>
+
+      <!-- Items List -->
+      <div class="items-container">
+        <h2>My Items</h2>
+        <div id="itemsList" class="items-grid">
+          <p>No items yet. Add one to get started!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Edit Item</h2>
+      <form id="editItemForm">
+        <input type="hidden" id="editId">
+        <input 
+          type="text" 
+          id="editTitle" 
+          placeholder="Enter item title" 
+          required
+        >
+        <textarea 
+          id="editDescription" 
+          placeholder="Enter item description"
+          rows="3"
+        ></textarea>
+        <button type="submit">Update Item</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
