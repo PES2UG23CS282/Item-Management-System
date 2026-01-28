@@ -2,14 +2,13 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // ✅ CORRECT: Forces it to look for the Cloud URL from Render
+    await mongoose.connect(process.env.MONGODB_URI);
+    
     console.log('✅ MongoDB connected successfully');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1);
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+    process.exit(1); // Stop the app if database fails
   }
 };
 

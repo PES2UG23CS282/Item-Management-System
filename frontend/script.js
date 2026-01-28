@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://item-management-system-shcm.onrender.com/';
+const API_BASE_URL = 'https://item-management-system-shcm.onrender.com';
 
 // ========== PAGE NAVIGATION ==========
 function switchPage(pageName) {
