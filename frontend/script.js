@@ -154,7 +154,8 @@ async function handleLogin(e) {
 
   try {
     console.log('📧 Logging in with:', email);
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    // ✅ FIXED: Added /api path
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -179,7 +180,8 @@ async function handleLogin(e) {
     fetchItems();
   } catch (error) {
     console.error('❌ Login error:', error);
-    errorDiv.textContent = 'Connection error. Make sure server is running on port 5000.';
+    // ✅ FIXED: Removed misleading port 5000 message
+    errorDiv.textContent = 'Network connection error. Please try again.';
     errorDiv.classList.add('show');
   }
 }
@@ -213,7 +215,8 @@ async function handleRegister(e) {
 
   try {
     console.log('👤 Registering user:', username, email);
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    // ✅ FIXED: Added /api path
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password, confirmPassword }),
@@ -238,7 +241,8 @@ async function handleRegister(e) {
     fetchItems();
   } catch (error) {
     console.error('❌ Register error:', error);
-    errorDiv.textContent = 'Connection error. Make sure server is running on port 5000.';
+    // ✅ FIXED: Removed misleading port 5000 message
+    errorDiv.textContent = 'Network connection error. Please try again.';
     errorDiv.classList.add('show');
   }
 }
@@ -263,7 +267,8 @@ function loadUserInfo() {
 async function fetchItems() {
   try {
     const token = getToken();
-    const response = await fetch(`${API_BASE_URL}/items`, {
+    // ✅ FIXED: Added /api path
+    const response = await fetch(`${API_BASE_URL}/api/items`, {
       headers: { 'Authorization': `Bearer ${token}` },
     });
 
@@ -353,7 +358,8 @@ async function handleAddItem(e) {
   try {
     console.log('💾 Adding item:', { title, description, priority, status });
     const token = getToken();
-    const response = await fetch(`${API_BASE_URL}/items`, {
+    // ✅ FIXED: Added /api path
+    const response = await fetch(`${API_BASE_URL}/api/items`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -412,7 +418,8 @@ async function handleUpdateItem(e) {
   try {
     console.log('🔄 Updating item:', { id, title, description, priority, status });
     const token = getToken();
-    const response = await fetch(`${API_BASE_URL}/items/${id}`, {
+    // ✅ FIXED: Added /api path
+    const response = await fetch(`${API_BASE_URL}/api/items/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -450,7 +457,8 @@ async function deleteItem(id) {
   try {
     console.log('🗑️ Deleting item:', id);
     const token = getToken();
-    const response = await fetch(`${API_BASE_URL}/items/${id}`, {
+    // ✅ FIXED: Added /api path
+    const response = await fetch(`${API_BASE_URL}/api/items/${id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` },
     });
