@@ -97,11 +97,44 @@
             placeholder="Enter item description (optional)"
             rows="3"
           ></textarea>
+          <div class="form-row">
+            <select id="itemPriority">
+              <option value="low">Low Priority</option>
+              <option value="medium" selected>Medium Priority</option>
+              <option value="high">High Priority</option>
+            </select>
+            <select id="itemStatus">
+              <option value="pending" selected>Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
           <button type="submit">Add Item</button>
         </form>
       </div>
 
-      <!-- Items List -->
+      <!-- Search and Filter Section -->
+      <div class="search-filter-container">
+        <div class="search-box">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="🔍 Search items..." 
+          >
+        </div>
+        <div class="filter-controls">
+          <select id="priorityFilter" onchange="filterByPriority(this.value)">
+            <option value="all">All Priorities</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <select id="statusFilter" onchange="filterByStatus(this.value)">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
       <div class="items-container">
         <h2>My Items</h2>
         <div id="itemsList" class="items-grid">
@@ -129,6 +162,17 @@
           placeholder="Enter item description"
           rows="3"
         ></textarea>
+        <div class="form-row">
+          <select id="editPriority">
+            <option value="low">Low Priority</option>
+            <option value="medium" selected>Medium Priority</option>
+            <option value="high">High Priority</option>
+          </select>
+          <select id="editStatus">
+            <option value="pending" selected>Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
         <button type="submit">Update Item</button>
       </form>
     </div>

@@ -1,6 +1,64 @@
-const API_BASE_URL = 'https://item-management-system-shcm.onrender.com';
+ const API_BASE_URL = 'https://item-management-system-shcm.onrender.com';
 
-// ========== PAGE NAVIGATION ==========
+// ========== GLOBAL STATE ==========
+let allItems = [];
+let currentFilter = {
+  search: '',
+  priority: 'all',
+  status: 'all'
+};
+
+// ========== FILTER AND SEARCH LOGIC ==========
+function applyFilters() {
+  let filtered = [...allItems];
+  
+  // Apply search filter
+  if (currentFilter.search.trim()) {
+    const searchLower = currentFilter.search.toLowerCase();
+    filtered = filtered.filter(item => 
+      item.title.toLowerCase().includes(searchLower) ||
+      item.description.toLowerCase().includes(searchLower) ||
+      (item.priority && item.priority.toLowerCase().includes(searchLower))
+    );
+  }
+  
+  // Apply priority filter
+  if (currentFilter.priority !== 'all') {
+    filtered = filtered.filter(item => item.priority === currentFilter.priority);
+  }
+  
+  // Apply status filter
+  if (currentFilter.status !== 'all') {
+    filtered = filtered.filter(item => item.status === currentFilter.status);
+  }
+  
+  displayItems(filtered);
+}
+
+function searchItems(query) {
+  currentFilter.search = query;
+  applyFilters();
+}
+
+function filterByPriority(priority) {
+  currentFilter.priority = priority;
+  applyFilters();
+}
+
+function filterByStatus(status) {
+  currentFilter.status = status;
+  applyFilters();
+}
+
+function resetFilters() {
+  currentFilter.search = '';
+  currentFilter.priority = 'all';
+  currentFilter.status = 'all';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('priorityFilter').value = 'all';
+  document.getElementById('statusFilter').value = 'all';
+  displayItems(allItems);
+}
 function switchPage(pageName) {
   document.querySelectorAll('.page').forEach(page => {
     page.classList.remove('active');
@@ -59,6 +117,14 @@ function setupEventListeners() {
   document.getElementById('addItemForm').addEventListener('submit', handleAddItem);
   document.getElementById('editItemForm').addEventListener('submit', handleUpdateItem);
 
+  // Search functionality
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('keyup', (e) => {
+      searchItems(e.target.value);
+    });
+  }
+
   // Modal
   document.querySelector('.close').addEventListener('click', () => {
     document.getElementById('editModal').style.display = 'none';
@@ -75,11 +141,18 @@ function setupEventListeners() {
 // ========== AUTHENTICATION FUNCTIONS ==========
 async function handleLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
   const errorDiv = document.getElementById('loginError');
 
+  if (!email || !password) {
+    errorDiv.textContent = 'Please enter email and password';
+    errorDiv.classList.add('show');
+    return;
+  }
+
   try {
+    console.log('📧 Logging in with:', email);
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -87,6 +160,7 @@ async function handleLogin(e) {
     });
 
     const data = await response.json();
+    console.log('✅ Login response:', data);
 
     if (!response.ok) {
       errorDiv.textContent = data.error || 'Login failed';
@@ -98,25 +172,46 @@ async function handleLogin(e) {
     setUser(data.user);
     document.getElementById('loginForm').reset();
     errorDiv.classList.remove('show');
+    console.log('✅ Login successful, switching to app page');
     switchPage('appPage');
     loadUserInfo();
     fetchItems();
   } catch (error) {
-    errorDiv.textContent = 'Connection error. Make sure the server is running.';
+    console.error('❌ Login error:', error);
+    errorDiv.textContent = 'Connection error. Make sure server is running on port 5000.';
     errorDiv.classList.add('show');
-    console.error('Login error:', error);
   }
 }
 
 async function handleRegister(e) {
   e.preventDefault();
-  const username = document.getElementById('registerUsername').value;
-  const email = document.getElementById('registerEmail').value;
-  const password = document.getElementById('registerPassword').value;
-  const confirmPassword = document.getElementById('registerConfirmPassword').value;
+  const username = document.getElementById('registerUsername').value.trim();
+  const email = document.getElementById('registerEmail').value.trim();
+  const password = document.getElementById('registerPassword').value.trim();
+  const confirmPassword = document.getElementById('registerConfirmPassword').value.trim();
   const errorDiv = document.getElementById('registerError');
 
+  // Frontend validation
+  if (!username || !email || !password || !confirmPassword) {
+    errorDiv.textContent = 'All fields are required';
+    errorDiv.classList.add('show');
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    errorDiv.textContent = 'Passwords do not match';
+    errorDiv.classList.add('show');
+    return;
+  }
+
+  if (password.length < 6) {
+    errorDiv.textContent = 'Password must be at least 6 characters';
+    errorDiv.classList.add('show');
+    return;
+  }
+
   try {
+    console.log('👤 Registering user:', username, email);
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -124,6 +219,7 @@ async function handleRegister(e) {
     });
 
     const data = await response.json();
+    console.log('✅ Register response:', data);
 
     if (!response.ok) {
       errorDiv.textContent = data.error || 'Registration failed';
@@ -135,13 +231,14 @@ async function handleRegister(e) {
     setUser(data.user);
     document.getElementById('registerForm').reset();
     errorDiv.classList.remove('show');
+    console.log('✅ Registration successful, switching to app page');
     switchPage('appPage');
     loadUserInfo();
     fetchItems();
   } catch (error) {
-    errorDiv.textContent = 'Connection error. Make sure the server is running.';
+    console.error('❌ Register error:', error);
+    errorDiv.textContent = 'Connection error. Make sure server is running on port 5000.';
     errorDiv.classList.add('show');
-    console.error('Register error:', error);
   }
 }
 
@@ -177,8 +274,8 @@ async function fetchItems() {
       throw new Error('Failed to fetch items');
     }
 
-    const items = await response.json();
-    displayItems(items);
+    allItems = await response.json();
+    displayItems(allItems);
   } catch (error) {
     console.error('Error fetching items:', error);
     document.getElementById('itemsList').innerHTML = '<p>Error loading items.</p>';
@@ -188,30 +285,55 @@ async function fetchItems() {
 function displayItems(items) {
   const itemsList = document.getElementById('itemsList');
 
-  if (items.length === 0) {
-    itemsList.innerHTML = '<p>No items yet. Add one to get started!</p>';
+  if (!items || items.length === 0) {
+    itemsList.innerHTML = '<p>🔍 No items found. Try adjusting your filters or add a new item!</p>';
     return;
   }
+
+  console.log(`📊 Displaying ${items.length} items`);
 
   itemsList.innerHTML = items
     .map((item) => `
       <div class="item-card">
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.description) || 'No description'}</p>
-        <div class="item-date">
-          Created: ${new Date(item.createdAt).toLocaleDateString()}
+        <div class="item-meta">
+          <span class="item-date">📅 ${new Date(item.createdAt).toLocaleDateString()}</span>
+          ${item.priority ? `<span class="item-priority priority-${item.priority}">🎯 ${item.priority.toUpperCase()}</span>` : ''}
+          ${item.status ? `<span class="item-status status-${item.status}">${item.status === 'completed' ? '✅ DONE' : '⏳ PENDING'}</span>` : ''}
         </div>
         <div class="item-actions">
-          <button class="btn-edit" onclick="openEditModal('${item._id}', '${escapeHtml(item.title)}', '${escapeHtml(item.description)}')">
+          <button class="btn-edit" data-id="${item._id}" type="button">
             ✏️ Edit
           </button>
-          <button class="btn-delete" onclick="deleteItem('${item._id}')">
+          <button class="btn-delete" data-id="${item._id}" type="button">
             🗑️ Delete
           </button>
         </div>
       </div>
     `)
     .join('');
+  
+  // Add event listeners to edit buttons
+  document.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const itemId = btn.dataset.id;
+      const item = allItems.find(i => i._id === itemId);
+      console.log('Edit item:', item);
+      if (item) {
+        openEditModal(item);
+      }
+    });
+  });
+
+  // Add event listeners to delete buttons
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const itemId = btn.dataset.id;
+      console.log('Delete item:', itemId);
+      deleteItem(itemId);
+    });
+  });
 }
 
 async function handleAddItem(e) {
@@ -219,13 +341,16 @@ async function handleAddItem(e) {
 
   const title = document.getElementById('title').value.trim();
   const description = document.getElementById('description').value.trim();
+  const priority = document.getElementById('itemPriority').value;
+  const status = document.getElementById('itemStatus').value;
 
   if (!title) {
-    alert('Please enter a title');
+    alert('❌ Please enter a title');
     return;
   }
 
   try {
+    console.log('💾 Adding item:', { title, description, priority, status });
     const token = getToken();
     const response = await fetch(`${API_BASE_URL}/items`, {
       method: 'POST',
@@ -233,29 +358,39 @@ async function handleAddItem(e) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, description }),
+      body: JSON.stringify({ title, description, priority, status }),
     });
 
     if (!response.ok) {
+      const error = await response.json();
+      console.error('❌ Error response:', error);
       if (response.status === 401) {
         handleLogout();
         return;
       }
-      throw new Error('Failed to add item');
+      throw new Error(error.error || 'Failed to add item');
     }
 
+    const newItem = await response.json();
+    console.log('✅ Item added successfully:', newItem);
+    
     document.getElementById('addItemForm').reset();
+    document.getElementById('itemPriority').value = 'medium';
+    document.getElementById('itemStatus').value = 'pending';
+    
     fetchItems();
   } catch (error) {
-    console.error('Error adding item:', error);
-    alert('Error adding item');
+    console.error('❌ Error adding item:', error);
+    alert('❌ Error adding item: ' + error.message);
   }
 }
 
-function openEditModal(id, title, description) {
-  document.getElementById('editId').value = id;
-  document.getElementById('editTitle').value = unescapeHtml(title);
-  document.getElementById('editDescription').value = unescapeHtml(description);
+function openEditModal(item) {
+  document.getElementById('editId').value = item._id;
+  document.getElementById('editTitle').value = item.title;
+  document.getElementById('editDescription').value = item.description;
+  document.getElementById('editPriority').value = item.priority || 'medium';
+  document.getElementById('editStatus').value = item.status || 'pending';
   document.getElementById('editModal').style.display = 'block';
 }
 
@@ -265,13 +400,16 @@ async function handleUpdateItem(e) {
   const id = document.getElementById('editId').value;
   const title = document.getElementById('editTitle').value.trim();
   const description = document.getElementById('editDescription').value.trim();
+  const priority = document.getElementById('editPriority').value;
+  const status = document.getElementById('editStatus').value;
 
   if (!title) {
-    alert('Please enter a title');
+    alert('❌ Please enter a title');
     return;
   }
 
   try {
+    console.log('🔄 Updating item:', { id, title, description, priority, status });
     const token = getToken();
     const response = await fetch(`${API_BASE_URL}/items/${id}`, {
       method: 'PUT',
@@ -279,31 +417,37 @@ async function handleUpdateItem(e) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ title, description }),
+      body: JSON.stringify({ title, description, priority, status }),
     });
 
     if (!response.ok) {
+      const error = await response.json();
+      console.error('❌ Error response:', error);
       if (response.status === 401) {
         handleLogout();
         return;
       }
-      throw new Error('Failed to update item');
+      throw new Error(error.error || 'Failed to update item');
     }
 
+    const updatedItem = await response.json();
+    console.log('✅ Item updated successfully:', updatedItem);
+    
     document.getElementById('editModal').style.display = 'none';
     fetchItems();
   } catch (error) {
-    console.error('Error updating item:', error);
-    alert('Error updating item');
+    console.error('❌ Error updating item:', error);
+    alert('❌ Error updating item: ' + error.message);
   }
 }
 
 async function deleteItem(id) {
-  if (!confirm('Are you sure you want to delete this item?')) {
+  if (!confirm('⚠️ Are you sure you want to delete this item? This action cannot be undone.')) {
     return;
   }
 
   try {
+    console.log('🗑️ Deleting item:', id);
     const token = getToken();
     const response = await fetch(`${API_BASE_URL}/items/${id}`, {
       method: 'DELETE',
@@ -311,17 +455,20 @@ async function deleteItem(id) {
     });
 
     if (!response.ok) {
+      const error = await response.json();
+      console.error('❌ Error response:', error);
       if (response.status === 401) {
         handleLogout();
         return;
       }
-      throw new Error('Failed to delete item');
+      throw new Error(error.error || 'Failed to delete item');
     }
 
+    console.log('✅ Item deleted successfully');
     fetchItems();
   } catch (error) {
-    console.error('Error deleting item:', error);
-    alert('Error deleting item');
+    console.error('❌ Error deleting item:', error);
+    alert('❌ Error deleting item: ' + error.message);
   }
 }
 

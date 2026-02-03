@@ -172,17 +172,28 @@ h2 {
   background: #f8f9fa;
   padding: 20px;
   border-radius: 8px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 }
 
-#addItemForm {
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+#addItemForm,
+#editItemForm {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
 #addItemForm input,
-#addItemForm textarea {
+#addItemForm textarea,
+#addItemForm select,
+#editItemForm input,
+#editItemForm textarea,
+#editItemForm select {
   padding: 12px;
   border: 2px solid #ddd;
   border-radius: 5px;
@@ -192,12 +203,17 @@ h2 {
 }
 
 #addItemForm input:focus,
-#addItemForm textarea:focus {
+#addItemForm textarea:focus,
+#addItemForm select:focus,
+#editItemForm input:focus,
+#editItemForm textarea:focus,
+#editItemForm select:focus {
   outline: none;
   border-color: #667eea;
 }
 
-#addItemForm button {
+#addItemForm button,
+#editItemForm button {
   padding: 12px;
   background: #667eea;
   color: white;
@@ -209,8 +225,56 @@ h2 {
   transition: background 0.3s;
 }
 
-#addItemForm button:hover {
+#addItemForm button:hover,
+#editItemForm button:hover {
   background: #5568d3;
+}
+
+/* ========== SEARCH AND FILTER ========== */
+.search-filter-container {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.filter-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.filter-controls select {
+  padding: 10px 12px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  font-size: 0.95em;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.filter-controls select:focus {
+  outline: none;
+  border-color: #667eea;
 }
 
 /* ========== ITEMS GRID ========== */
@@ -253,10 +317,50 @@ h2 {
   word-wrap: break-word;
 }
 
-.item-card .item-date {
-  font-size: 0.85em;
-  color: #999;
+.item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 15px;
+  font-size: 0.85em;
+}
+
+.item-date {
+  color: #999;
+}
+
+.item-priority,
+.item-status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.75em;
+  text-transform: uppercase;
+}
+
+.priority-low {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+.priority-medium {
+  background: #fff9c4;
+  color: #f57f17;
+}
+
+.priority-high {
+  background: #ffcccc;
+  color: #c62828;
+}
+
+.status-pending {
+  background: #bbdefb;
+  color: #1565c0;
+}
+
+.status-completed {
+  background: #c8e6c9;
+  color: #2e7d32;
 }
 
 .item-actions {
@@ -354,7 +458,8 @@ h2 {
 }
 
 #editItemForm input,
-#editItemForm textarea {
+#editItemForm textarea,
+#editItemForm select {
   padding: 12px;
   border: 2px solid #ddd;
   border-radius: 5px;
@@ -363,7 +468,8 @@ h2 {
 }
 
 #editItemForm input:focus,
-#editItemForm textarea:focus {
+#editItemForm textarea:focus,
+#editItemForm select:focus {
   outline: none;
   border-color: #667eea;
 }
@@ -385,6 +491,16 @@ h2 {
 }
 
 /* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+  .search-filter-container {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 20px;
@@ -418,5 +534,9 @@ h2 {
 
   .auth-card h1 {
     font-size: 1.5em;
+  }
+
+  .filter-controls {
+    grid-template-columns: 1fr;
   }
 }

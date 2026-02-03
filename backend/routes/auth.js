@@ -13,6 +13,7 @@ const generateToken = (id) => {
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password, confirmPassword } = req.body;
+    console.log('👤 Registering user:', { username, email });
 
     // Validation
     if (!username || !email || !password || !confirmPassword) {
@@ -41,6 +42,7 @@ router.post('/register', async (req, res) => {
     });
 
     await user.save();
+    console.log('✅ User registered:', user._id);
 
     const token = generateToken(user._id);
     res.status(201).json({
@@ -53,6 +55,7 @@ router.post('/register', async (req, res) => {
       },
     });
   } catch (error) {
+    console.error('❌ Register error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -61,6 +64,7 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('🔐 Login attempt:', email);
 
     // Validation
     if (!email || !password) {
@@ -70,15 +74,18 @@ router.post('/login', async (req, res) => {
     // Find user by email and include password field
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
+      console.log('❌ User not found:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Check password
     const isPasswordValid = await user.matchPassword(password);
     if (!isPasswordValid) {
+      console.log('❌ Invalid password for user:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    console.log('✅ Login successful:', email);
     const token = generateToken(user._id);
     res.json({
       message: 'Login successful',
@@ -90,6 +97,7 @@ router.post('/login', async (req, res) => {
       },
     });
   } catch (error) {
+    console.error('❌ Login error:', error.message);
     res.status(500).json({ error: error.message });
   }
 });

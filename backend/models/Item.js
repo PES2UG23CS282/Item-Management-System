@@ -16,6 +16,16 @@ const itemSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    priority: {
+      type: String,
+      enum: ['low', 'medium', 'high'],
+      default: 'medium',
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'completed'],
+      default: 'pending',
+    },
   },
   { timestamps: true }
 );

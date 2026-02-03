@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors()); // ✅ Keeps access open for your phone
 app.use(express.json());
 
 // Routes
@@ -20,11 +20,16 @@ const itemRoutes = require('./routes/items');
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 
-// Health check
+// ✅ NEW: Add this "Home Page" route for easy testing
+app.get('/', (req, res) => {
+  res.send("API is Live and Running!");
+});
+
+// Health check (Keep this too, it's good)
 app.get('/api/health', (req, res) => {
   res.json({ status: '✅ Server is running with MongoDB' });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
